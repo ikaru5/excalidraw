@@ -13,6 +13,7 @@ import {
   FileId,
   ExcalidrawImageElement,
   Theme,
+  Latex,
 } from "./element/types";
 import { SHAPES } from "./shapes";
 import { Point as RoughPoint } from "roughjs/bin/geometry";
@@ -320,6 +321,13 @@ export type AppClassProperties = {
   library: Library;
   imageCache: Map<
     FileId,
+    {
+      image: HTMLImageElement | Promise<HTMLImageElement>;
+      mimeType: typeof ALLOWED_IMAGE_MIME_TYPES[number];
+    }
+  >;
+  latexImageCache: Map<
+    Latex,
     {
       image: HTMLImageElement | Promise<HTMLImageElement>;
       mimeType: typeof ALLOWED_IMAGE_MIME_TYPES[number];

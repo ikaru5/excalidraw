@@ -72,6 +72,9 @@ export const SelectedShapeActions = ({
     }
   }
 
+  const isLatexElement =
+    targetElements.length === 1 && "string" == typeof targetElements[0].latex;
+
   return (
     <div className="panelColumn">
       {((hasStrokeColor(activeTool) &&
@@ -177,6 +180,10 @@ export const SelectedShapeActions = ({
             {renderAction("group")}
             {renderAction("ungroup")}
             {showLinkIcon && renderAction("hyperlink")}
+            {!deviceType.isMobile &&
+              !isLatexElement &&
+              renderAction("im2latex")}
+            {isLatexElement && renderAction("latexEdit")}
           </div>
         </fieldset>
       )}

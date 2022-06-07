@@ -109,6 +109,8 @@ export type ActionName =
   | "increaseFontSize"
   | "decreaseFontSize"
   | "unbindText"
+  | "im2latex"
+  | "latexEdit"
   | "hyperlink"
   | "eraser"
   | "bindText"

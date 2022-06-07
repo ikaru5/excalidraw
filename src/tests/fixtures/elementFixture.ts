@@ -6,6 +6,7 @@ const elementBase: Omit<ExcalidrawElement, "type"> = {
   y: 237,
   width: 214,
   height: 214,
+  latex: null,
   angle: 0,
   strokeColor: "#000000",
   backgroundColor: "#15aabf",

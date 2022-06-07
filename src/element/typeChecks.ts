@@ -27,7 +27,11 @@ export const isGenericElement = (
 export const isInitializedImageElement = (
   element: ExcalidrawElement | null,
 ): element is InitializedExcalidrawImageElement => {
-  return !!element && element.type === "image" && !!element.fileId;
+  return (
+    !!element &&
+    element.type === "image" &&
+    (!!element.fileId || !!element.latex)
+  );
 };
 
 export const isImageElement = (

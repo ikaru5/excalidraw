@@ -93,6 +93,7 @@ const restoreElementWithProperties = <
     strokeWidth: element.strokeWidth || 1,
     strokeStyle: element.strokeStyle ?? "solid",
     roughness: element.roughness ?? 1,
+    latex: element.latex ?? null,
     opacity: element.opacity == null ? 100 : element.opacity,
     angle: element.angle || 0,
     x: extra.x ?? element.x ?? 0,

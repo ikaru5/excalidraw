@@ -35,6 +35,7 @@ type ElementConstructorOpts = MarkOptional<
   | "version"
   | "versionNonce"
   | "link"
+  | "latex"
 >;
 
 const _newElementBase = <T extends ExcalidrawElement>(
@@ -56,6 +57,7 @@ const _newElementBase = <T extends ExcalidrawElement>(
     strokeSharpness,
     boundElements = null,
     link = null,
+    latex = null,
     locked,
     ...rest
   }: ElementConstructorOpts & Omit<Partial<ExcalidrawGenericElement>, "type">,
@@ -84,6 +86,7 @@ const _newElementBase = <T extends ExcalidrawElement>(
     boundElements,
     updated: getUpdatedTimestamp(),
     link,
+    latex,
     locked,
   };
   return element;

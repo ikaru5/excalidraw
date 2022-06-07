@@ -21,6 +21,7 @@ export type RenderConfig = {
   // extra options passed to the renderer
   // ---------------------------------------------------------------------------
   imageCache: AppClassProperties["imageCache"];
+  latexImageCache: AppClassProperties["latexImageCache"];
   renderScrollbars?: boolean;
   renderSelection?: boolean;
   renderGrid?: boolean;
@@ -43,6 +44,7 @@ export type ExportType =
   | "clipboard"
   | "clipboard-svg"
   | "backend"
+  | "svg-string"
   | "svg";
 
 export type ScrollBars = {

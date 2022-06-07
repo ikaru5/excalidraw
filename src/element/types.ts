@@ -55,6 +55,7 @@ type _ExcalidrawElementBase = Readonly<{
   /** epoch (ms) timestamp of last element update */
   updated: number;
   link: string | null;
+  latex: string | null;
   locked: boolean;
 }>;
 
@@ -80,6 +81,7 @@ export type ExcalidrawImageElement = _ExcalidrawElementBase &
     fileId: FileId | null;
     /** whether respective file is persisted */
     status: "pending" | "saved" | "error";
+    latex: string | null;
     /** X and Y scale factors <-1, 1>, used for image axis flipping */
     scale: [number, number];
   }>;
@@ -175,3 +177,4 @@ export type ExcalidrawFreeDrawElement = _ExcalidrawElementBase &
   }>;
 
 export type FileId = string & { _brand: "FileId" };
+export type Latex = string;

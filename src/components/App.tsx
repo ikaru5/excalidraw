@@ -258,6 +258,12 @@ import {
   isLocalLink,
 } from "../element/Hyperlink";
 
+declare global {
+  interface Window {
+    MathJax: any;
+  }
+}
+
 const defaultDeviceTypeContext: DeviceType = {
   isMobile: false,
   isTouchScreen: false,
@@ -322,6 +328,7 @@ class App extends React.Component<AppProps, AppState> {
 
   public files: BinaryFiles = {};
   public imageCache: AppClassProperties["imageCache"] = new Map();
+  public latexImageCache: AppClassProperties["latexImageCache"] = new Map();
 
   hitLinkElement?: NonDeletedExcalidrawElement;
   lastPointerDown: React.PointerEvent<HTMLCanvasElement> | null = null;
@@ -1227,6 +1234,7 @@ class App extends React.Component<AppProps, AppState> {
         shouldCacheIgnoreZoom: this.state.shouldCacheIgnoreZoom,
         theme: this.state.theme,
         imageCache: this.imageCache,
+        latexImageCache: this.latexImageCache,
         isExporting: false,
         renderScrollbars: !this.deviceType.isMobile,
       },
@@ -1683,6 +1691,10 @@ class App extends React.Component<AppProps, AppState> {
       commitToHistory?: SceneData["commitToHistory"];
       libraryItems?: SceneData["libraryItems"];
     }) => {
+      this.updateLatexImageCache(
+        sceneData.elements as InitializedExcalidrawImageElement[],
+      );
+
       if (sceneData.commitToHistory) {
         this.history.resumeRecording();
       }
@@ -4710,7 +4722,7 @@ class App extends React.Component<AppProps, AppState> {
     this.scene.replaceAllElements(elements);
   };
 
-  private initializeImage = async ({
+  public initializeImage = async ({
     imageFile,
     imageElement: _imageElement,
     showCursorImagePreview = false,
@@ -5019,6 +5031,64 @@ class App extends React.Component<AppProps, AppState> {
     }
   };
 
+  public cacheLatexImage = async (latex: string) => {
+    if (!!this.latexImageCache.get(latex)?.image) {
+      return false;
+    }
+
+    const latexSVG = window.MathJax.tex2svg(latex).childNodes[0].outerHTML;
+    const file = new File([latexSVG], "tmpfile.svg", {
+      type: MIME_TYPES.svg,
+      lastModified: new Date().getTime(),
+    });
+    let newFile;
+    try {
+      newFile = SVGStringToFile(
+        await normalizeSVG(await file.text()),
+        file.name,
+      );
+    } catch (error: any) {
+      console.warn(error);
+      throw new Error(t("errors.latexSvgImageInsertError"));
+    }
+
+    const dataURL = await getDataURL(newFile);
+
+    const imagePromise = loadHTMLImageElement(dataURL);
+
+    const data = {
+      image: imagePromise,
+      mimeType: MIME_TYPES.svg,
+    } as const;
+
+    // store the promise immediately to indicate there's an in-progress
+    // initialization
+    this.latexImageCache.set(latex, data);
+
+    const image = await imagePromise;
+
+    this.latexImageCache.set(latex, { ...data, image });
+    return true;
+  };
+
+  public async updateLatexImageCache(
+    elements: readonly InitializedExcalidrawImageElement[],
+  ) {
+    let inform = false;
+    for (const element of elements.filter(
+      (ele) => ele.type === "image" && !!ele.latex,
+    )) {
+      if (await this.cacheLatexImage(element.latex as string)) {
+        inform = true;
+        invalidateShapeForElement(element);
+      }
+    }
+
+    if (inform) {
+      this.scene.informMutation();
+    }
+  }
+
   /** updates image cache, refreshing updated elements and/or setting status
       to error for images that fail during <img> element creation */
   private updateImageCache = async (
@@ -5030,6 +5100,7 @@ class App extends React.Component<AppProps, AppState> {
       fileIds: elements.map((element) => element.fileId),
       files,
     });
+    await this.updateLatexImageCache(elements);
     if (updatedFiles.size || erroredFiles.size) {
       for (const element of elements) {
         if (updatedFiles.has(element.fileId)) {

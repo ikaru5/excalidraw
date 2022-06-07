@@ -7,6 +7,8 @@ export {
 } from "./actionZindex";
 export { actionSelectAll } from "./actionSelectAll";
 export { actionDuplicateSelection } from "./actionDuplicateSelection";
+export { actionIm2Latex } from "./actionIm2Latex";
+export { actionLatexEdit } from "./actionLatexEdit";
 export {
   actionChangeStrokeColor,
   actionChangeBackgroundColor,

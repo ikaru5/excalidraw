@@ -234,9 +234,16 @@ const drawElementOnCanvas = (
       break;
     }
     case "image": {
-      const img = isInitializedImageElement(element)
-        ? renderConfig.imageCache.get(element.fileId)?.image
-        : undefined;
+      const isInitialized = isInitializedImageElement(element);
+      const isLatexImage = !!element.latex;
+
+      let img;
+      if (isInitialized) {
+        img = isLatexImage
+          ? renderConfig.latexImageCache.get(element.latex)?.image
+          : renderConfig.imageCache.get(element.fileId)?.image;
+      }
+
       if (img != null && !(img instanceof Promise)) {
         context.drawImage(
           img,
