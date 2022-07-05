@@ -299,7 +299,8 @@ const drawElementOnCanvas = (
         if (shouldTemporarilyAttach) {
           context.canvas.remove();
         }
-      } else {
+        // @ts-ignore
+      } else if ("createFormula" !== element.type) {
         throw new Error(`Unimplemented type ${element.type}`);
       }
     }
@@ -818,7 +819,9 @@ export const renderElement = (
     }
     default: {
       // @ts-ignore
-      throw new Error(`Unimplemented type ${element.type}`);
+      if ("createFormula" !== element.type) {
+        throw new Error(`Unimplemented type ${element.type}`);
+      }
     }
   }
 };

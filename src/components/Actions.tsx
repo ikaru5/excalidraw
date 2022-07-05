@@ -90,7 +90,11 @@ export const SelectedShapeActions = ({
         renderAction("changeStrokeWidth")}
 
       {(activeTool === "freedraw" ||
-        targetElements.some((element) => element.type === "freedraw")) &&
+        activeTool === "mathdraw" ||
+        targetElements.some(
+          (element) =>
+            element.type === "freedraw" || element.type === "mathdraw",
+        )) &&
         renderAction("changeStrokeShape")}
 
       {(hasStrokeStyle(activeTool) ||
@@ -211,13 +215,27 @@ export const ShapesSwitcher = ({
       const shortcut = letter
         ? `${capitalizeString(letter)} ${t("helpDialog.or")} ${index + 1}`
         : `${index + 1}`;
+
+      const isChecked = () => {
+        switch (value) {
+          case "freedraw":
+            return activeTool.type === value && activeTool.mode !== "mathdraw";
+          case "mathdraw":
+            return (
+              activeTool.type === "freedraw" && activeTool.mode === "mathdraw"
+            );
+          default:
+            return activeTool.type === value;
+        }
+      };
+
       return (
         <ToolButton
           className="Shape"
           key={value}
           type="radio"
           icon={icon}
-          checked={activeTool.type === value}
+          checked={isChecked()}
           name="editor-current-shape"
           title={`${capitalizeString(label)} — ${shortcut}`}
           keyBindingLabel={`${index + 1}`}
@@ -233,10 +251,16 @@ export const ShapesSwitcher = ({
             }
           }}
           onChange={({ pointerType }) => {
-            if (appState.activeTool.type !== value) {
+            const newValue = value === "mathdraw" ? "freedraw" : value;
+            const mode = value === "mathdraw" ? "mathdraw" : undefined;
+            if (appState.activeTool.type !== newValue) {
               trackEvent("toolbar", value, "ui");
             }
-            const nextActiveTool = { ...activeTool, type: value };
+            const nextActiveTool = {
+              ...activeTool,
+              type: newValue,
+              mode,
+            };
             setAppState({
               activeTool: nextActiveTool,
               multiElement: null,
@@ -246,7 +270,7 @@ export const ShapesSwitcher = ({
               ...appState,
               activeTool: nextActiveTool,
             });
-            if (value === "image") {
+            if (newValue === "image") {
               onImageAction({ pointerType });
             }
           }}

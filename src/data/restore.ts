@@ -47,6 +47,8 @@ export const AllowedExcalidrawActiveTools: Record<
   image: true,
   arrow: true,
   freedraw: true,
+  createFormula: true,
+  mathdraw: true,
   eraser: false,
 };
 
@@ -266,6 +268,7 @@ export const restoreAppState = (
     activeTool: {
       lastActiveToolBeforeEraser: null,
       locked: nextAppState.activeTool.locked ?? false,
+      mode: undefined,
       type: AllowedExcalidrawActiveTools[nextAppState.activeTool.type]
         ? nextAppState.activeTool.type ?? "selection"
         : "selection",

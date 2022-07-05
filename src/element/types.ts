@@ -169,7 +169,7 @@ export type ExcalidrawLinearElement = _ExcalidrawElementBase &
 
 export type ExcalidrawFreeDrawElement = _ExcalidrawElementBase &
   Readonly<{
-    type: "freedraw";
+    type: "freedraw" | "mathdraw";
     points: readonly Point[];
     pressures: readonly number[];
     simulatePressure: boolean;

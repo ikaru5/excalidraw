@@ -2987,7 +2987,7 @@ class App extends React.Component<AppProps, AppState> {
 
     // Since context menu closes on pointer down so setting to false
     this.contextMenuOpen = false;
-    this.clearSelectionIfNotUsingSelection();
+    this.clearSelectionIfNotUsingSelectionOrMathDraw();
     this.updateBindingEnabledOnPointerMove(event);
 
     if (this.handleSelectionOnPointerDown(event, pointerDownState)) {
@@ -3043,7 +3043,12 @@ class App extends React.Component<AppProps, AppState> {
         this.state.activeTool.type,
         pointerDownState,
       );
-    } else if (this.state.activeTool.type !== "eraser") {
+    } else if (this.state.activeTool.type === "createFormula") {
+      this.createLatexElementOnPointerDown(pointerDownState);
+    } else if (
+      this.state.activeTool.type !== "eraser" &&
+      this.state.activeTool.type !== "mathdraw"
+    ) {
       this.createGenericElementOnPointerDown(
         this.state.activeTool.type,
         pointerDownState,
@@ -3362,8 +3367,12 @@ class App extends React.Component<AppProps, AppState> {
     return true;
   }
 
-  private clearSelectionIfNotUsingSelection = (): void => {
-    if (this.state.activeTool.type !== "selection") {
+  private clearSelectionIfNotUsingSelectionOrMathDraw = (): void => {
+    const isSelecting = this.state.activeTool.type === "selection";
+    const isMathdraw =
+      this.state.activeTool.type === "freedraw" &&
+      "mathdraw" === this.state.activeTool.mode;
+    if (!isSelecting && !isMathdraw) {
       this.setState({
         selectedElementIds: {},
         selectedGroupIds: {},
@@ -3642,7 +3651,7 @@ class App extends React.Component<AppProps, AppState> {
     );
 
     const element = newFreeDrawElement({
-      type: elementType,
+      type: "freedraw",
       x: gridX,
       y: gridY,
       strokeColor: this.state.currentItemStrokeColor,
@@ -3826,6 +3835,41 @@ class App extends React.Component<AppProps, AppState> {
     }
   };
 
+  private createLatexElementOnPointerDown = (
+    pointerDownState: PointerDownState,
+  ): void => {
+    const [gridX, gridY] = getGridPoint(
+      pointerDownState.origin.x,
+      pointerDownState.origin.y,
+      this.state.gridSize,
+    );
+    const element = newImageElement({
+      type: "image",
+      x: gridX,
+      y: gridY,
+      latex: "f",
+      strokeColor: this.state.currentItemStrokeColor,
+      backgroundColor: this.state.currentItemBackgroundColor,
+      fillStyle: this.state.currentItemFillStyle,
+      strokeWidth: this.state.currentItemStrokeWidth,
+      strokeStyle: this.state.currentItemStrokeStyle,
+      roughness: this.state.currentItemRoughness,
+      opacity: this.state.currentItemOpacity,
+      strokeSharpness: this.state.currentItemStrokeSharpness,
+      locked: false,
+    });
+
+    this.scene.replaceAllElements([
+      ...this.scene.getElementsIncludingDeleted(),
+      element,
+    ]);
+    this.setState({
+      multiElement: null,
+      draggingElement: element,
+      editingElement: element,
+    });
+  };
+
   private createGenericElementOnPointerDown = (
     elementType: ExcalidrawGenericElement["type"],
     pointerDownState: PointerDownState,
@@ -3985,7 +4029,12 @@ class App extends React.Component<AppProps, AppState> {
         (element) => this.isASelectedElement(element),
       );
 
+      const isMathdraw =
+        this.state.activeTool.type === "freedraw" &&
+        "mathdraw" === this.state.activeTool.mode;
+
       if (
+        !isMathdraw &&
         (hasHitASelectedElement ||
           pointerDownState.hit.hasHitCommonBoundingBoxOfSelectedElements) &&
         // this allows for box-selecting points when clicking inside the

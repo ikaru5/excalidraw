@@ -121,10 +121,10 @@ export const actionFinalize = register({
         );
       }
 
-      if (
-        !appState.activeTool.locked &&
-        appState.activeTool.type !== "freedraw"
-      ) {
+      const isFreeDraw =
+        appState.activeTool.type === "freedraw" &&
+        appState.activeTool.mode !== "mathdraw";
+      if (!appState.activeTool.locked && !isFreeDraw) {
         appState.selectedElementIds[multiPointElement.id] = true;
       }
     }

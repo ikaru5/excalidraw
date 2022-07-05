@@ -79,6 +79,7 @@ export type AppState = {
   editingElement: NonDeletedExcalidrawElement | null;
   editingLinearElement: LinearElementEditor | null;
   activeTool: {
+    mode: string | undefined;
     type: typeof SHAPES[number]["value"] | "eraser";
     lastActiveToolBeforeEraser: typeof SHAPES[number]["value"] | null;
     locked: boolean;
