@@ -261,6 +261,7 @@ import {
 declare global {
   interface Window {
     MathJax: any;
+    MathQuill: any;
   }
 }
 
