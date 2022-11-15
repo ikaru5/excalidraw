@@ -1,5 +1,6 @@
 import { getClientColors, getClientInitials } from "../clients";
 import { Avatar } from "../components/Avatar";
+import { Avatar as MantineAvatar } from "@mantine/core";
 import { centerScrollOn } from "../scene/scroll";
 import { Collaborator } from "../types";
 import { register } from "./register";
@@ -44,6 +45,18 @@ export const actionGoToCollaborator = register({
 
     const { background, stroke } = getClientColors(clientId, appState);
     const shortName = getClientInitials(collaborator.username);
+
+    if (data?.useCustomUi) {
+      return (
+        <MantineAvatar
+          color={stroke}
+          radius="xl"
+          onClick={() => updateData(collaborator.pointer)}
+        >
+          {shortName}
+        </MantineAvatar>
+      );
+    }
 
     return (
       <Avatar

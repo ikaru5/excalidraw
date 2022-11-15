@@ -5,7 +5,7 @@ import {t} from "../../i18n";
 import {AppState} from "../../types";
 
 import {Tooltip} from "../Tooltip";
-import {Group, Menu, Stack, ActionIcon, Text, Button} from "@mantine/core";
+import {Group, Menu, Stack, ActionIcon, Text, Button, Avatar} from "@mantine/core";
 import {Settings, MessageCircle, Photo, Search, ArrowsLeftRight, Trash, Menu2, Help, Download, PhotoDown, Upload, MoonStars} from "tabler-icons-react";
 import {ActionName} from "../../actions/types";
 
@@ -68,7 +68,7 @@ const TopRight = ({appState, actionManager, zenModeEnabled, showExitZenModeBtn, 
                 key={clientId}
               >
                 {actionManager.renderAction("goToCollaborator", {
-                  id: clientId,
+                  id: clientId, useCustomUi: true
                 })}
               </Tooltip>
             ))}
