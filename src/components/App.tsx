@@ -257,6 +257,7 @@ import {
   isPointHittingLinkIcon,
   isLocalLink,
 } from "../element/Hyperlink";
+import LayerUIAlternative from "./LayerUIAlternative";
 
 declare global {
   interface Window {
@@ -501,7 +502,7 @@ class App extends React.Component<AppProps, AppState> {
           value={this.excalidrawContainerValue}
         >
           <DeviceTypeContext.Provider value={this.deviceType}>
-            <LayerUI
+            <LayerUIAlternative
               canvas={this.canvas}
               appState={this.state}
               files={this.files}

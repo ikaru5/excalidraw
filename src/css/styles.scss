@@ -329,7 +329,7 @@ div[data-button="nth-root"] {
     box-shadow: 0 0 0 2px var(--focus-highlight-color);
   }
 
-  button,
+  button:not([class*='mantine']),
   .buttonList label {
     user-select: none;
     background-color: var(--button-gray-1);

@@ -15,6 +15,7 @@ import {
   SendToBackIcon,
   BringForwardIcon,
 } from "../components/icons";
+import {ActionIcon} from "@mantine/core";
 
 export const actionSendBackward = register({
   name: "sendBackward",
@@ -32,16 +33,23 @@ export const actionSendBackward = register({
     event[KEYS.CTRL_OR_CMD] &&
     !event.shiftKey &&
     event.code === CODES.BRACKET_LEFT,
-  PanelComponent: ({ updateData, appState }) => (
-    <button
+  PanelComponent: ({ updateData, appState, data }) => {
+    if (data?.useCustomUi) {
+      return <ActionIcon onClick={() => updateData(null)}
+                         size="xl" color="dark" p={10}
+                         title={`${t("labels.sendBackward")} — ${getShortcutKey("CtrlOrCmd+[")}`}
+      ><SendBackwardIcon theme={appState.theme}/></ActionIcon>;
+    }
+
+    return <button
       type="button"
       className="zIndexButton"
       onClick={() => updateData(null)}
       title={`${t("labels.sendBackward")} — ${getShortcutKey("CtrlOrCmd+[")}`}
     >
-      <SendBackwardIcon theme={appState.theme} />
+      <SendBackwardIcon theme={appState.theme}/>
     </button>
-  ),
+  },
 });
 
 export const actionBringForward = register({
@@ -60,16 +68,23 @@ export const actionBringForward = register({
     event[KEYS.CTRL_OR_CMD] &&
     !event.shiftKey &&
     event.code === CODES.BRACKET_RIGHT,
-  PanelComponent: ({ updateData, appState }) => (
-    <button
+  PanelComponent: ({ updateData, appState, data}) => {
+    if (data?.useCustomUi) {
+      return <ActionIcon onClick={() => updateData(null)}
+                         size="xl" color="dark" p={10}
+                         title={`${t("labels.bringForward")} — ${getShortcutKey("CtrlOrCmd+]")}`}
+      ><BringForwardIcon theme={appState.theme}/></ActionIcon>
+    }
+
+    return <button
       type="button"
       className="zIndexButton"
       onClick={() => updateData(null)}
       title={`${t("labels.bringForward")} — ${getShortcutKey("CtrlOrCmd+]")}`}
     >
-      <BringForwardIcon theme={appState.theme} />
+      <BringForwardIcon theme={appState.theme}/>
     </button>
-  ),
+  },
 });
 
 export const actionSendToBack = register({
@@ -91,8 +106,19 @@ export const actionSendToBack = register({
       : event[KEYS.CTRL_OR_CMD] &&
         event.shiftKey &&
         event.code === CODES.BRACKET_LEFT,
-  PanelComponent: ({ updateData, appState }) => (
-    <button
+  PanelComponent: ({ updateData, appState, data }) => {
+    if (data?.useCustomUi) {
+      return <ActionIcon onClick={() => updateData(null)}
+                         size="xl" color="dark" p={10}
+                         title={`${t("labels.sendToBack")} — ${
+                           isDarwin
+                             ? getShortcutKey("CtrlOrCmd+Alt+[")
+                             : getShortcutKey("CtrlOrCmd+Shift+[")
+                         }`}
+      ><SendToBackIcon theme={appState.theme}/></ActionIcon>
+    }
+
+    return <button
       type="button"
       className="zIndexButton"
       onClick={() => updateData(null)}
@@ -102,9 +128,9 @@ export const actionSendToBack = register({
           : getShortcutKey("CtrlOrCmd+Shift+[")
       }`}
     >
-      <SendToBackIcon theme={appState.theme} />
+      <SendToBackIcon theme={appState.theme}/>
     </button>
-  ),
+  },
 });
 
 export const actionBringToFront = register({
@@ -127,8 +153,19 @@ export const actionBringToFront = register({
       : event[KEYS.CTRL_OR_CMD] &&
         event.shiftKey &&
         event.code === CODES.BRACKET_RIGHT,
-  PanelComponent: ({ updateData, appState }) => (
-    <button
+  PanelComponent: ({ updateData, appState, data }) => {
+    if (data?.useCustomUi) {
+      return <ActionIcon onClick={() => updateData(null)}
+                         size="xl" color="dark" p={10}
+                         title={`${t("labels.bringToFront")} — ${
+                           isDarwin
+                             ? getShortcutKey("CtrlOrCmd+Alt+]")
+                             : getShortcutKey("CtrlOrCmd+Shift+]")
+                         }`}
+      ><BringToFrontIcon theme={appState.theme}/></ActionIcon>
+    }
+
+    return <button
       type="button"
       className="zIndexButton"
       onClick={(event) => updateData(null)}
@@ -138,7 +175,7 @@ export const actionBringToFront = register({
           : getShortcutKey("CtrlOrCmd+Shift+]")
       }`}
     >
-      <BringToFrontIcon theme={appState.theme} />
+      <BringToFrontIcon theme={appState.theme}/>
     </button>
-  ),
+  },
 });

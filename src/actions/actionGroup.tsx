@@ -20,6 +20,10 @@ import { ToolButton } from "../components/ToolButton";
 import { ExcalidrawElement, ExcalidrawTextElement } from "../element/types";
 import { AppState } from "../types";
 import { isBoundToContainer } from "../element/typeChecks";
+import {ActionIcon} from "@mantine/core";
+import clsx from "clsx";
+import {Link} from "tabler-icons-react";
+import {getContextMenuLabel} from "../element/Hyperlink";
 
 const allElementsInSameGroup = (elements: readonly ExcalidrawElement[]) => {
   if (elements.length >= 2) {
@@ -133,17 +137,27 @@ export const actionGroup = register({
     enableActionGroup(elements, appState),
   keyTest: (event) =>
     !event.shiftKey && event[KEYS.CTRL_OR_CMD] && event.code === CODES.G,
-  PanelComponent: ({ elements, appState, updateData }) => (
-    <ToolButton
+  PanelComponent: ({ elements, appState, updateData, data }) => {
+    if (data?.useCustomUi) {
+      if (!isSomeElementSelected(getNonDeletedElements(elements), appState) || !enableActionGroup(elements, appState)) return null;
+
+      return <ActionIcon onClick={() => updateData(null)}
+                         size="xl" color="dark" p={10}
+                         title={`${t("labels.group")} — ${getShortcutKey("CtrlOrCmd+G")}`}
+                         aria-label={t("labels.group")}
+      ><GroupIcon theme={appState.theme}/></ActionIcon>
+    }
+
+    return <ToolButton
       hidden={!enableActionGroup(elements, appState)}
       type="button"
-      icon={<GroupIcon theme={appState.theme} />}
+      icon={<GroupIcon theme={appState.theme}/>}
       onClick={() => updateData(null)}
       title={`${t("labels.group")} — ${getShortcutKey("CtrlOrCmd+G")}`}
       aria-label={t("labels.group")}
       visible={isSomeElementSelected(getNonDeletedElements(elements), appState)}
     ></ToolButton>
-  ),
+  },
 });
 
 export const actionUngroup = register({
@@ -194,15 +208,25 @@ export const actionUngroup = register({
   contextItemPredicate: (elements, appState) =>
     getSelectedGroupIds(appState).length > 0,
 
-  PanelComponent: ({ elements, appState, updateData }) => (
-    <ToolButton
+  PanelComponent: ({ elements, appState, updateData, data }) => {
+    if (data?.useCustomUi) {
+      if (!isSomeElementSelected(getNonDeletedElements(elements), appState) || getSelectedGroupIds(appState).length === 0) return null;
+
+      return <ActionIcon onClick={() => updateData(null)}
+                         size="xl" color="dark" p={10}
+                         title={`${t("labels.ungroup")} — ${getShortcutKey("CtrlOrCmd+Shift+G")}`}
+                         aria-label={t("labels.ungroup")}
+      ><UngroupIcon theme={appState.theme}/></ActionIcon>
+    }
+
+    return <ToolButton
       type="button"
       hidden={getSelectedGroupIds(appState).length === 0}
-      icon={<UngroupIcon theme={appState.theme} />}
+      icon={<UngroupIcon theme={appState.theme}/>}
       onClick={() => updateData(null)}
       title={`${t("labels.ungroup")} — ${getShortcutKey("CtrlOrCmd+Shift+G")}`}
       aria-label={t("labels.ungroup")}
       visible={isSomeElementSelected(getNonDeletedElements(elements), appState)}
     ></ToolButton>
-  ),
+  },
 });

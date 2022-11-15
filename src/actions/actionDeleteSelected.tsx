@@ -1,17 +1,19 @@
-import { isSomeElementSelected } from "../scene";
-import { KEYS } from "../keys";
-import { ToolButton } from "../components/ToolButton";
-import { trash } from "../components/icons";
-import { t } from "../i18n";
-import { register } from "./register";
-import { getNonDeletedElements } from "../element";
-import { ExcalidrawElement } from "../element/types";
-import { AppState } from "../types";
-import { newElementWith } from "../element/mutateElement";
-import { getElementsInGroup } from "../groups";
-import { LinearElementEditor } from "../element/linearElementEditor";
-import { fixBindingsAfterDeletion } from "../element/binding";
-import { isBoundToContainer } from "../element/typeChecks";
+import {isSomeElementSelected} from "../scene";
+import {KEYS} from "../keys";
+import {ToolButton} from "../components/ToolButton";
+import {trash} from "../components/icons";
+import {t} from "../i18n";
+import {register} from "./register";
+import {getNonDeletedElements} from "../element";
+import {ExcalidrawElement} from "../element/types";
+import {AppState} from "../types";
+import {newElementWith} from "../element/mutateElement";
+import {getElementsInGroup} from "../groups";
+import {LinearElementEditor} from "../element/linearElementEditor";
+import {fixBindingsAfterDeletion} from "../element/binding";
+import {isBoundToContainer} from "../element/typeChecks";
+import {Trash} from "tabler-icons-react";
+import {ActionIcon} from "@mantine/core";
 
 const deleteSelectedElements = (
   elements: readonly ExcalidrawElement[],
@@ -20,13 +22,13 @@ const deleteSelectedElements = (
   return {
     elements: elements.map((el) => {
       if (appState.selectedElementIds[el.id]) {
-        return newElementWith(el, { isDeleted: true });
+        return newElementWith(el, {isDeleted: true});
       }
       if (
         isBoundToContainer(el) &&
         appState.selectedElementIds[el.containerId]
       ) {
-        return newElementWith(el, { isDeleted: true });
+        return newElementWith(el, {isDeleted: true});
       }
       return el;
     }),
@@ -49,7 +51,7 @@ const handleGroupEditingState = (
     if (siblingElements.length) {
       return {
         ...appState,
-        selectedElementIds: { [siblingElements[0].id]: true },
+        selectedElementIds: {[siblingElements[0].id]: true},
       };
     }
   }
@@ -58,7 +60,7 @@ const handleGroupEditingState = (
 
 export const actionDeleteSelected = register({
   name: "deleteSelectedElements",
-  trackEvent: { category: "element", action: "delete" },
+  trackEvent: {category: "element", action: "delete"},
   perform: (elements, appState) => {
     if (appState.editingLinearElement) {
       const {
@@ -121,11 +123,11 @@ export const actionDeleteSelected = register({
         commitToHistory: true,
       };
     }
-    let { elements: nextElements, appState: nextAppState } =
+    let {elements: nextElements, appState: nextAppState} =
       deleteSelectedElements(elements, appState);
     fixBindingsAfterDeletion(
       nextElements,
-      elements.filter(({ id }) => appState.selectedElementIds[id]),
+      elements.filter(({id}) => appState.selectedElementIds[id]),
     );
 
     nextAppState = handleGroupEditingState(nextAppState, nextElements);
@@ -134,7 +136,7 @@ export const actionDeleteSelected = register({
       elements: nextElements,
       appState: {
         ...nextAppState,
-        activeTool: { ...appState.activeTool, type: "selection" },
+        activeTool: {...appState.activeTool, type: "selection"},
         multiElement: null,
       },
       commitToHistory: isSomeElementSelected(
@@ -145,8 +147,17 @@ export const actionDeleteSelected = register({
   },
   contextItemLabel: "labels.delete",
   keyTest: (event) => event.key === KEYS.BACKSPACE || event.key === KEYS.DELETE,
-  PanelComponent: ({ elements, appState, updateData }) => (
-    <ToolButton
+  PanelComponent: ({elements, appState, updateData, data}) => {
+    if (data?.useCustomUi) {
+      if (!isSomeElementSelected(getNonDeletedElements(elements), appState)) return null;
+
+      return <ActionIcon onClick={() => updateData(null)}
+                         size="xl" color="red" variant="light"
+                         title={t("labels.delete")}
+                         aria-label={t("labels.delete")}><Trash />
+      </ActionIcon>
+    }
+    return <ToolButton
       type="button"
       icon={trash}
       title={t("labels.delete")}
@@ -154,5 +165,5 @@ export const actionDeleteSelected = register({
       onClick={() => updateData(null)}
       visible={isSomeElementSelected(getNonDeletedElements(elements), appState)}
     />
-  ),
+  },
 });

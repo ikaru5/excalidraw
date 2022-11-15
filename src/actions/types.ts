@@ -121,7 +121,7 @@ export type PanelComponentProps = {
   appState: AppState;
   updateData: (formData?: any) => void;
   appProps: ExcalidrawProps;
-  data?: Partial<{ id: string; size: ToolButtonSize }>;
+  data?: Partial<{ id: string; size: ToolButtonSize, useCustomUi?: boolean }>;
 };
 
 export interface Action {

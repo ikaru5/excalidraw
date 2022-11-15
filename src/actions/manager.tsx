@@ -131,6 +131,19 @@ export class ActionManager {
     this.updater(action.perform(elements, appState, value, this.app));
   }
 
+  externalUpdateData =  (action: Action, appState : AppState, elements : ExcalidrawElement[], formState?: any) => {
+    trackAction(action, "ui", appState, elements, this.app, formState);
+
+    this.updater(
+      action.perform(
+        this.getElementsIncludingDeleted(),
+        this.getAppState(),
+        formState,
+        this.app,
+      ),
+    );
+  };
+
   /**
    * @param data additional data sent to the PanelComponent
    */

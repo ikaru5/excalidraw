@@ -10,7 +10,7 @@ import { NonDeletedExcalidrawElement } from "./types";
 
 import { register } from "../actions/register";
 import { ToolButton } from "../components/ToolButton";
-import { editIcon, link, trash } from "../components/icons";
+import {editIcon, formula, link, trash} from "../components/icons";
 import { t } from "../i18n";
 import {
   useCallback,
@@ -26,12 +26,14 @@ import { rotate } from "../math";
 import { EVENT, HYPERLINK_TOOLTIP_DELAY, MIME_TYPES } from "../constants";
 import { Bounds } from "./bounds";
 import { getTooltipDiv, updateTooltipPosition } from "../components/Tooltip";
-import { getSelectedElements } from "../scene";
+import {getSelectedElements, isSomeElementSelected} from "../scene";
 import { isPointHittingElementBoundingBox } from "./collision";
-import { getElementAbsoluteCoords } from "./";
+import {getElementAbsoluteCoords, getNonDeletedElements} from "./";
 
 import "./Hyperlink.scss";
 import { trackEvent } from "../analytics";
+import {ActionIcon} from "@mantine/core";
+import {Link} from "tabler-icons-react";
 
 const CONTAINER_WIDTH = 320;
 const SPACE_BOTTOM = 85;
@@ -270,8 +272,17 @@ export const actionLink = register({
     const selectedElements = getSelectedElements(elements, appState);
     return selectedElements.length === 1;
   },
-  PanelComponent: ({ elements, appState, updateData }) => {
+  PanelComponent: ({ elements, appState, updateData, data}) => {
     const selectedElements = getSelectedElements(elements, appState);
+
+    if (data?.useCustomUi) {
+      return <ActionIcon onClick={() => updateData(null)}
+                         className={clsx({"ToolIcon--selected": selectedElements.length === 1 && !!selectedElements[0].link})}
+                         size="xl" color="dark" p={10}
+                         aria-label={t(getContextMenuLabel(elements, appState))}
+                         title={`${t("labels.link.label")} - ${getShortcutKey("CtrlOrCmd+K")}`}
+      ><Link/></ActionIcon>
+    }
 
     return (
       <ToolButton

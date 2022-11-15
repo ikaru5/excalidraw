@@ -5,7 +5,7 @@ import {
   AlignRightIcon,
   AlignTopIcon,
   CenterHorizontallyIcon,
-  CenterVerticallyIcon,
+  CenterVerticallyIcon, SendBackwardIcon,
 } from "../components/icons";
 import { ToolButton } from "../components/ToolButton";
 import { getNonDeletedElements } from "../element";
@@ -16,6 +16,8 @@ import { getSelectedElements, isSomeElementSelected } from "../scene";
 import { AppState } from "../types";
 import { arrayToMap, getShortcutKey } from "../utils";
 import { register } from "./register";
+import {ActionIcon} from "@mantine/core";
+import React from "react";
 
 const enableActionGroup = (
   elements: readonly ExcalidrawElement[],
@@ -56,11 +58,23 @@ export const actionAlignTop = register({
   },
   keyTest: (event) =>
     event[KEYS.CTRL_OR_CMD] && event.shiftKey && event.key === KEYS.ARROW_UP,
-  PanelComponent: ({ elements, appState, updateData }) => (
-    <ToolButton
+  PanelComponent: ({ elements, appState, updateData, data }) => {
+    if (data?.useCustomUi) {
+      if (!isSomeElementSelected(getNonDeletedElements(elements), appState) || !enableActionGroup(elements, appState)) return null;
+
+      return <ActionIcon onClick={() => updateData(null)}
+                         size="xl" color="dark" p={10}
+                         title={`${t("labels.alignTop")} — ${getShortcutKey(
+                           "CtrlOrCmd+Shift+Up",
+                         )}`}
+                         aria-label={t("labels.alignTop")}
+      ><AlignTopIcon theme={appState.theme}/></ActionIcon>;
+    }
+
+    return <ToolButton
       hidden={!enableActionGroup(elements, appState)}
       type="button"
-      icon={<AlignTopIcon theme={appState.theme} />}
+      icon={<AlignTopIcon theme={appState.theme}/>}
       onClick={() => updateData(null)}
       title={`${t("labels.alignTop")} — ${getShortcutKey(
         "CtrlOrCmd+Shift+Up",
@@ -68,7 +82,7 @@ export const actionAlignTop = register({
       aria-label={t("labels.alignTop")}
       visible={isSomeElementSelected(getNonDeletedElements(elements), appState)}
     />
-  ),
+  },
 });
 
 export const actionAlignBottom = register({
@@ -86,11 +100,23 @@ export const actionAlignBottom = register({
   },
   keyTest: (event) =>
     event[KEYS.CTRL_OR_CMD] && event.shiftKey && event.key === KEYS.ARROW_DOWN,
-  PanelComponent: ({ elements, appState, updateData }) => (
-    <ToolButton
+  PanelComponent: ({ elements, appState, updateData, data }) => {
+    if (data?.useCustomUi) {
+      if (!isSomeElementSelected(getNonDeletedElements(elements), appState) || !enableActionGroup(elements, appState)) return null;
+
+      return <ActionIcon onClick={() => updateData(null)}
+                         size="xl" color="dark" p={10}
+                         title={`${t("labels.alignBottom")} — ${getShortcutKey(
+                           "CtrlOrCmd+Shift+Down",
+                         )}`}
+                         aria-label={t("labels.alignBottom")}
+      ><AlignBottomIcon theme={appState.theme}/></ActionIcon>;
+    }
+
+    return <ToolButton
       hidden={!enableActionGroup(elements, appState)}
       type="button"
-      icon={<AlignBottomIcon theme={appState.theme} />}
+      icon={<AlignBottomIcon theme={appState.theme}/>}
       onClick={() => updateData(null)}
       title={`${t("labels.alignBottom")} — ${getShortcutKey(
         "CtrlOrCmd+Shift+Down",
@@ -98,7 +124,7 @@ export const actionAlignBottom = register({
       aria-label={t("labels.alignBottom")}
       visible={isSomeElementSelected(getNonDeletedElements(elements), appState)}
     />
-  ),
+  },
 });
 
 export const actionAlignLeft = register({
@@ -116,11 +142,23 @@ export const actionAlignLeft = register({
   },
   keyTest: (event) =>
     event[KEYS.CTRL_OR_CMD] && event.shiftKey && event.key === KEYS.ARROW_LEFT,
-  PanelComponent: ({ elements, appState, updateData }) => (
-    <ToolButton
+  PanelComponent: ({ elements, appState, updateData, data }) => {
+    if (data?.useCustomUi) {
+      if (!isSomeElementSelected(getNonDeletedElements(elements), appState) || !enableActionGroup(elements, appState)) return null;
+
+      return <ActionIcon onClick={() => updateData(null)}
+                         size="xl" color="dark" p={10}
+                         title={`${t("labels.alignLeft")} — ${getShortcutKey(
+                           "CtrlOrCmd+Shift+Left",
+                         )}`}
+                         aria-label={t("labels.alignLeft")}
+      ><AlignLeftIcon theme={appState.theme}/></ActionIcon>;
+    }
+
+    return <ToolButton
       hidden={!enableActionGroup(elements, appState)}
       type="button"
-      icon={<AlignLeftIcon theme={appState.theme} />}
+      icon={<AlignLeftIcon theme={appState.theme}/>}
       onClick={() => updateData(null)}
       title={`${t("labels.alignLeft")} — ${getShortcutKey(
         "CtrlOrCmd+Shift+Left",
@@ -128,7 +166,7 @@ export const actionAlignLeft = register({
       aria-label={t("labels.alignLeft")}
       visible={isSomeElementSelected(getNonDeletedElements(elements), appState)}
     />
-  ),
+  },
 });
 
 export const actionAlignRight = register({
@@ -147,11 +185,23 @@ export const actionAlignRight = register({
   },
   keyTest: (event) =>
     event[KEYS.CTRL_OR_CMD] && event.shiftKey && event.key === KEYS.ARROW_RIGHT,
-  PanelComponent: ({ elements, appState, updateData }) => (
-    <ToolButton
+  PanelComponent: ({ elements, appState, updateData, data }) => {
+    if (data?.useCustomUi) {
+      if (!isSomeElementSelected(getNonDeletedElements(elements), appState) || !enableActionGroup(elements, appState)) return null;
+
+      return <ActionIcon onClick={() => updateData(null)}
+                         size="xl" color="dark" p={10}
+                         title={`${t("labels.alignRight")} — ${getShortcutKey(
+                           "CtrlOrCmd+Shift+Right",
+                         )}`}
+                         aria-label={t("labels.alignRight")}
+      ><AlignRightIcon theme={appState.theme}/></ActionIcon>;
+    }
+
+    return <ToolButton
       hidden={!enableActionGroup(elements, appState)}
       type="button"
-      icon={<AlignRightIcon theme={appState.theme} />}
+      icon={<AlignRightIcon theme={appState.theme}/>}
       onClick={() => updateData(null)}
       title={`${t("labels.alignRight")} — ${getShortcutKey(
         "CtrlOrCmd+Shift+Right",
@@ -159,7 +209,7 @@ export const actionAlignRight = register({
       aria-label={t("labels.alignRight")}
       visible={isSomeElementSelected(getNonDeletedElements(elements), appState)}
     />
-  ),
+  },
 });
 
 export const actionAlignVerticallyCentered = register({
@@ -176,17 +226,27 @@ export const actionAlignVerticallyCentered = register({
       commitToHistory: true,
     };
   },
-  PanelComponent: ({ elements, appState, updateData }) => (
-    <ToolButton
+  PanelComponent: ({ elements, appState, updateData, data }) => {
+    if (data?.useCustomUi) {
+      if (!isSomeElementSelected(getNonDeletedElements(elements), appState) || !enableActionGroup(elements, appState)) return null;
+
+      return <ActionIcon onClick={() => updateData(null)}
+                         size="xl" color="dark" p={10}
+                         title={t("labels.centerVertically")}
+                         aria-label={t("labels.centerVertically")}
+      ><CenterVerticallyIcon theme={appState.theme}/></ActionIcon>;
+    }
+
+    return <ToolButton
       hidden={!enableActionGroup(elements, appState)}
       type="button"
-      icon={<CenterVerticallyIcon theme={appState.theme} />}
+      icon={<CenterVerticallyIcon theme={appState.theme}/>}
       onClick={() => updateData(null)}
       title={t("labels.centerVertically")}
       aria-label={t("labels.centerVertically")}
       visible={isSomeElementSelected(getNonDeletedElements(elements), appState)}
     />
-  ),
+  },
 });
 
 export const actionAlignHorizontallyCentered = register({
@@ -202,15 +262,25 @@ export const actionAlignHorizontallyCentered = register({
       commitToHistory: true,
     };
   },
-  PanelComponent: ({ elements, appState, updateData }) => (
-    <ToolButton
+  PanelComponent: ({ elements, appState, updateData, data }) => {
+    if (data?.useCustomUi) {
+      if (!isSomeElementSelected(getNonDeletedElements(elements), appState) || !enableActionGroup(elements, appState)) return null;
+
+      return <ActionIcon onClick={() => updateData(null)}
+                         size="xl" color="dark" p={10}
+                         title={t("labels.centerHorizontally")}
+                         aria-label={t("labels.centerHorizontally")}
+      ><CenterHorizontallyIcon theme={appState.theme}/></ActionIcon>;
+    }
+
+    return <ToolButton
       hidden={!enableActionGroup(elements, appState)}
       type="button"
-      icon={<CenterHorizontallyIcon theme={appState.theme} />}
+      icon={<CenterHorizontallyIcon theme={appState.theme}/>}
       onClick={() => updateData(null)}
       title={t("labels.centerHorizontally")}
       aria-label={t("labels.centerHorizontally")}
       visible={isSomeElementSelected(getNonDeletedElements(elements), appState)}
     />
-  ),
+  },
 });

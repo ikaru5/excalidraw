@@ -19,7 +19,8 @@
     color: var(--popup-text-color);
   }
 
-  .context-menu-option {
+  .context-menu-option,
+  button.context-menu-option:not([class*='mantine']) {
     position: relative;
     width: 100%;
     min-width: 9.5rem;

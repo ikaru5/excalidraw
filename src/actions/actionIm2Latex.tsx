@@ -1,26 +1,27 @@
-import { KEYS } from "../keys";
-import { register } from "./register";
+import {KEYS} from "../keys";
+import {register} from "./register";
 import {
   ExcalidrawElement,
   ExcalidrawImageElement,
   NonDeleted,
 } from "../element/types";
-import { getNonDeletedElements, newImageElement } from "../element";
-import { getSelectedElements, isSomeElementSelected } from "../scene";
-import { ToolButton } from "../components/ToolButton";
-import { formula } from "../components/icons";
-import { t } from "../i18n";
-import { getShortcutKey } from "../utils";
-import { AppClassProperties, AppState } from "../types";
-import { actionDeleteSelected } from "./actionDeleteSelected";
-import { exportToCanvas } from "../scene/export";
-import { getCommonBoundingBox } from "../element/bounds";
-import { canvasToBlob } from "../data/blob";
+import {getNonDeletedElements, newImageElement} from "../element";
+import {getSelectedElements, isSomeElementSelected} from "../scene";
+import {ToolButton} from "../components/ToolButton";
+import {formula} from "../components/icons";
+import {t} from "../i18n";
+import {getShortcutKey} from "../utils";
+import {AppClassProperties, AppState} from "../types";
+import {actionDeleteSelected} from "./actionDeleteSelected";
+import {exportToCanvas} from "../scene/export";
+import {getCommonBoundingBox} from "../element/bounds";
+import {canvasToBlob} from "../data/blob";
 import App from "../components/App";
+import {ActionIcon} from "@mantine/core";
 
 export const actionIm2Latex = register({
   name: "im2latex",
-  trackEvent: { category: "element" },
+  trackEvent: {category: "element"},
   perform: async (elements, appState, data, app: any) => {
     const pngBlob = await createPngFromSelected(elements, appState, data, app);
     const selectedElements = getSelectedElements(elements, appState, true);
@@ -49,17 +50,27 @@ export const actionIm2Latex = register({
       elements: deleteResult ? deleteResult.elements : elements,
       appState: deleteResult
         ? {
-            ...deleteResult.appState,
-            selectedElementIds: { [newElement.id]: true },
-          }
+          ...deleteResult.appState,
+          selectedElementIds: {[newElement.id]: true},
+        }
         : appState,
       commitToHistory: true,
     };
   },
   contextItemLabel: "labels.im2latex",
   keyTest: (event) => event[KEYS.CTRL_OR_CMD] && event.key === KEYS.M,
-  PanelComponent: ({ elements, appState, updateData }) => (
-    <ToolButton
+  PanelComponent: ({elements, appState, updateData, data}) => {
+    if (data?.useCustomUi) {
+      if (!isSomeElementSelected(getNonDeletedElements(elements), appState)) return null;
+
+      return <ActionIcon onClick={() => updateData(null)}
+                         size="xl" color="dark" p={10}
+                         title={`${t("labels.im2latex")} — ${getShortcutKey("CtrlOrCmd+M")}`}
+                         aria-label={t("labels.im2latex")}>{formula}
+      </ActionIcon>
+    }
+
+    return <ToolButton
       type="button"
       icon={formula}
       title={`${t("labels.im2latex")} — ${getShortcutKey("CtrlOrCmd+M")}`}
@@ -67,7 +78,7 @@ export const actionIm2Latex = register({
       onClick={() => updateData(null)}
       visible={isSomeElementSelected(getNonDeletedElements(elements), appState)}
     />
-  ),
+  }
 });
 
 const sendToMathPix = async (file: Blob) => {

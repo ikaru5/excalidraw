@@ -25,6 +25,10 @@
     "strokeStyle_solid": "Solid",
     "strokeStyle_dashed": "Dashed",
     "strokeStyle_dotted": "Dotted",
+    "typography": "typography",
+    "strokeColor": "Stroke color",
+    "backgroundColor": "Background color",
+    "textVerticalAlign": "Vertical align",
     "sloppiness": "Sloppiness",
     "opacity": "Opacity",
     "textAlign": "Text align",
@@ -121,6 +125,10 @@
       "unlock": "Unlock",
       "lockAll": "Lock all",
       "unlockAll": "Unlock all"
+    },
+    "menu": {
+      "general": "General",
+      "export": "Export"
     }
   },
   "buttons": {
@@ -160,7 +168,15 @@
     "remove": "Remove",
     "publishLibrary": "Publish",
     "submit": "Submit",
-    "confirm": "Confirm"
+    "confirm": "Confirm",
+    "virtualMathKeyboard": "Virtual math keyboard",
+    "hamburgerMenu": {
+      "help": "Help",
+      "exportJson": "Export JSON",
+      "exportImage": "Export image",
+      "loadFromFile": "Load from file",
+      "darkModeToggle": "toggle Dark mode"
+    }
   },
   "alerts": {
     "clearReset": "This will clear the whole canvas. Are you sure?",

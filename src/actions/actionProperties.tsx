@@ -78,6 +78,10 @@ import {
 import { hasStrokeColor } from "../scene/comparisons";
 import { arrayToMap } from "../utils";
 import { register } from "./register";
+import colors from "../colors";
+import {Box, Center, ColorPicker as MantineColorPicker, SegmentedControl, ThemeIcon, Text, Stack, Popover, ActionIcon, Slider, Group} from "@mantine/core";
+import React from "react";
+import {ArrowRight} from "tabler-icons-react";
 
 const FONT_SIZE_RELATIVE_INCREASE_STEP = 0.1;
 
@@ -218,8 +222,20 @@ export const actionChangeStrokeColor = register({
       commitToHistory: !!value.currentItemStrokeColor,
     };
   },
-  PanelComponent: ({ elements, appState, updateData }) => (
-    <>
+  PanelComponent: ({ elements, appState, updateData, data }) => {
+    if (data?.useCustomUi) {
+      const value = getFormValue(elements, appState, (element) => element.strokeColor, appState.currentItemStrokeColor);
+
+      return <MantineColorPicker format="rgba"
+                                 fullWidth
+                                 value={value ? value : undefined}
+                                 swatches={colors.elementStroke}
+                                 title={t("labels.strokeColor")}
+                                 onChange={(color) => updateData({currentItemStrokeColor: color})}
+      />
+    }
+
+    return <>
       <h3 aria-hidden="true">{t("labels.stroke")}</h3>
       <ColorPicker
         type="elementStroke"
@@ -230,16 +246,16 @@ export const actionChangeStrokeColor = register({
           (element) => element.strokeColor,
           appState.currentItemStrokeColor,
         )}
-        onChange={(color) => updateData({ currentItemStrokeColor: color })}
+        onChange={(color) => updateData({currentItemStrokeColor: color})}
         isActive={appState.openPopup === "strokeColorPicker"}
         setActive={(active) =>
-          updateData({ openPopup: active ? "strokeColorPicker" : null })
+          updateData({openPopup: active ? "strokeColorPicker" : null})
         }
         elements={elements}
         appState={appState}
       />
     </>
-  ),
+  },
 });
 
 export const actionChangeBackgroundColor = register({
@@ -261,8 +277,19 @@ export const actionChangeBackgroundColor = register({
       commitToHistory: !!value.currentItemBackgroundColor,
     };
   },
-  PanelComponent: ({ elements, appState, updateData }) => (
-    <>
+  PanelComponent: ({ elements, appState, updateData, data }) => {
+    if (data?.useCustomUi) {
+      const value = getFormValue(elements, appState, (element) => element.backgroundColor, appState.currentItemBackgroundColor);
+
+      return <MantineColorPicker format="rgba"
+                                 fullWidth
+                                 value={value ? value : undefined}
+                                 swatches={colors.elementBackground}
+                                 title={t("labels.backgroundColor")}
+                                 onChange={(color) => updateData({currentItemBackgroundColor: color})}
+      />
+    }
+    return <>
       <h3 aria-hidden="true">{t("labels.background")}</h3>
       <ColorPicker
         type="elementBackground"
@@ -273,16 +300,16 @@ export const actionChangeBackgroundColor = register({
           (element) => element.backgroundColor,
           appState.currentItemBackgroundColor,
         )}
-        onChange={(color) => updateData({ currentItemBackgroundColor: color })}
+        onChange={(color) => updateData({currentItemBackgroundColor: color})}
         isActive={appState.openPopup === "backgroundColorPicker"}
         setActive={(active) =>
-          updateData({ openPopup: active ? "backgroundColorPicker" : null })
+          updateData({openPopup: active ? "backgroundColorPicker" : null})
         }
         elements={elements}
         appState={appState}
       />
     </>
-  ),
+  },
 });
 
 export const actionChangeFillStyle = register({
@@ -299,25 +326,66 @@ export const actionChangeFillStyle = register({
       commitToHistory: true,
     };
   },
-  PanelComponent: ({ elements, appState, updateData }) => (
-    <fieldset>
+  PanelComponent: ({ elements, appState, updateData, data }) => {
+    if (data?.useCustomUi) {
+      const value = getFormValue(elements, appState, (element) => element.fillStyle, appState.currentItemFillStyle);
+
+      return <Stack spacing={3}>
+      <Text fz="sm" weight={600}>{t("labels.fill")}</Text>
+        <SegmentedControl
+          size="xs"
+          value={value ? value : undefined}
+          onChange={(value) => updateData(value)}
+          data={[
+            {
+              label: <Center>
+                <ThemeIcon variant="default" size="xs" color="dark" sx={{border: "none", backgroundColor: "transparent"}}>
+                  <FillHachureIcon theme={appState.theme}/>
+                </ThemeIcon>
+                <Box ml={10}>{t("labels.hachure")}</Box>
+              </Center>,
+              value: 'hachure'
+            },
+            {
+              label: <Center>
+                <ThemeIcon variant="default" size="xs" color="dark" sx={{border: "none", backgroundColor: "transparent"}}>
+                  <FillCrossHatchIcon theme={appState.theme}/>
+                </ThemeIcon>
+                <Box ml={10}>{t("labels.crossHatch")}</Box>
+              </Center>,
+              value: 'cross-hatch'
+            },
+            {
+              label: <Center>
+                <ThemeIcon variant="default" size="xs" color="dark" sx={{border: "none", backgroundColor: "transparent"}}>
+                  <FillSolidIcon theme={appState.theme}/>
+                </ThemeIcon>
+                <Box ml={10}>{t("labels.solid")}</Box>
+              </Center>,
+              value: 'solid'
+            },
+          ]}
+        /></Stack>
+    }
+
+    return <fieldset>
       <legend>{t("labels.fill")}</legend>
       <ButtonIconSelect
         options={[
           {
             value: "hachure",
             text: t("labels.hachure"),
-            icon: <FillHachureIcon theme={appState.theme} />,
+            icon: <FillHachureIcon theme={appState.theme}/>,
           },
           {
             value: "cross-hatch",
             text: t("labels.crossHatch"),
-            icon: <FillCrossHatchIcon theme={appState.theme} />,
+            icon: <FillCrossHatchIcon theme={appState.theme}/>,
           },
           {
             value: "solid",
             text: t("labels.solid"),
-            icon: <FillSolidIcon theme={appState.theme} />,
+            icon: <FillSolidIcon theme={appState.theme}/>,
           },
         ]}
         group="fill"
@@ -332,8 +400,25 @@ export const actionChangeFillStyle = register({
         }}
       />
     </fieldset>
-  ),
+  },
 });
+
+const popOverSwitcher = ({value, onChange, values, title = undefined} : {value: any, onChange: any, values: any, title: string | undefined}) => {
+  return <Popover position="bottom" withArrow shadow="md" closeOnClickOutside closeOnEscape>
+    <Popover.Target>
+      <ActionIcon color="indigo" size="xl" variant="light" p={10} title={title}>{values[value].icon}</ActionIcon>
+    </Popover.Target>
+    <Popover.Dropdown p={5}>
+      <Stack spacing={3}>
+        {
+          Object.keys(values).map((value) =>
+            <ActionIcon key={value} size="xl" color="dark" p={10} title={values[value].text} onClick={() => onChange(value)}>{values[value].icon}</ActionIcon>
+          )
+        }
+      </Stack>
+    </Popover.Dropdown>
+  </Popover>
+}
 
 export const actionChangeStrokeWidth = register({
   name: "changeStrokeWidth",
@@ -345,12 +430,34 @@ export const actionChangeStrokeWidth = register({
           strokeWidth: value,
         }),
       ),
-      appState: { ...appState, currentItemStrokeWidth: value },
+      appState: {...appState, currentItemStrokeWidth: value},
       commitToHistory: true,
     };
   },
-  PanelComponent: ({ elements, appState, updateData }) => (
-    <fieldset>
+  PanelComponent: ({elements, appState, updateData, data}) => {
+    if (data?.useCustomUi) {
+      return popOverSwitcher({
+        value: getFormValue(elements, appState, (element) => element.strokeWidth, appState.currentItemStrokeWidth),
+        onChange: (value: any) => updateData(value),
+        values: {
+          1: {
+            icon: <StrokeWidthIcon theme={appState.theme} strokeWidth={2}/>,
+            text: t("labels.thin")
+          },
+          2: {
+            icon: <StrokeWidthIcon theme={appState.theme} strokeWidth={6}/>,
+            text: t("labels.bold")
+          },
+          4: {
+            icon: <StrokeWidthIcon theme={appState.theme} strokeWidth={10}/>,
+            text: t("labels.extraBold")
+          }
+        },
+        title: t("labels.strokeWidth")
+      });
+    }
+
+    return <fieldset>
       <legend>{t("labels.strokeWidth")}</legend>
       <ButtonIconSelect
         group="stroke-width"
@@ -358,17 +465,17 @@ export const actionChangeStrokeWidth = register({
           {
             value: 1,
             text: t("labels.thin"),
-            icon: <StrokeWidthIcon theme={appState.theme} strokeWidth={2} />,
+            icon: <StrokeWidthIcon theme={appState.theme} strokeWidth={2}/>,
           },
           {
             value: 2,
             text: t("labels.bold"),
-            icon: <StrokeWidthIcon theme={appState.theme} strokeWidth={6} />,
+            icon: <StrokeWidthIcon theme={appState.theme} strokeWidth={6}/>,
           },
           {
             value: 4,
             text: t("labels.extraBold"),
-            icon: <StrokeWidthIcon theme={appState.theme} strokeWidth={10} />,
+            icon: <StrokeWidthIcon theme={appState.theme} strokeWidth={10}/>,
           },
         ]}
         value={getFormValue(
@@ -380,7 +487,7 @@ export const actionChangeStrokeWidth = register({
         onChange={(value) => updateData(value)}
       />
     </fieldset>
-  ),
+  },
 });
 
 export const actionChangeSloppiness = register({
@@ -398,8 +505,30 @@ export const actionChangeSloppiness = register({
       commitToHistory: true,
     };
   },
-  PanelComponent: ({ elements, appState, updateData }) => (
-    <fieldset>
+  PanelComponent: ({ elements, appState, updateData, data }) => {
+    if (data?.useCustomUi) {
+      return popOverSwitcher({
+        value: getFormValue(elements, appState, (element) => element.roughness, appState.currentItemRoughness),
+        onChange: (value: any) => updateData(value),
+        values: {
+          0: {
+            icon: <SloppinessArchitectIcon theme={appState.theme} />,
+            text: t("labels.architect")
+          },
+          1: {
+            icon: <SloppinessArtistIcon theme={appState.theme} />,
+            text: t("labels.artist")
+          },
+          2: {
+            icon: <SloppinessCartoonistIcon theme={appState.theme} />,
+            text: t("labels.cartoonist")
+          }
+        },
+        title: t("labels.sloppiness")
+      });
+    }
+
+    return <fieldset>
       <legend>{t("labels.sloppiness")}</legend>
       <ButtonIconSelect
         group="sloppiness"
@@ -429,7 +558,7 @@ export const actionChangeSloppiness = register({
         onChange={(value) => updateData(value)}
       />
     </fieldset>
-  ),
+  },
 });
 
 export const actionChangeStrokeStyle = register({
@@ -446,8 +575,30 @@ export const actionChangeStrokeStyle = register({
       commitToHistory: true,
     };
   },
-  PanelComponent: ({ elements, appState, updateData }) => (
-    <fieldset>
+  PanelComponent: ({ elements, appState, updateData, data }) => {
+    if (data?.useCustomUi) {
+      return popOverSwitcher({
+        value: getFormValue(elements, appState, (element) => element.strokeStyle, appState.currentItemStrokeStyle),
+        onChange: (value: any) => updateData(value),
+        values: {
+          solid: {
+            icon: <StrokeStyleSolidIcon theme={appState.theme} />,
+            text: t("labels.strokeStyle_solid")
+          },
+          dashed: {
+            icon: <StrokeStyleDashedIcon theme={appState.theme} />,
+            text: t("labels.strokeStyle_dashed")
+          },
+          dotted: {
+            icon: <StrokeStyleDottedIcon theme={appState.theme} />,
+            text: t("labels.strokeStyle_dotted")
+          }
+        },
+        title: t("labels.strokeStyle")
+      });
+    }
+
+    return <fieldset>
       <legend>{t("labels.strokeStyle")}</legend>
       <ButtonIconSelect
         group="strokeStyle"
@@ -455,17 +606,17 @@ export const actionChangeStrokeStyle = register({
           {
             value: "solid",
             text: t("labels.strokeStyle_solid"),
-            icon: <StrokeStyleSolidIcon theme={appState.theme} />,
+            icon: <StrokeStyleSolidIcon theme={appState.theme}/>,
           },
           {
             value: "dashed",
             text: t("labels.strokeStyle_dashed"),
-            icon: <StrokeStyleDashedIcon theme={appState.theme} />,
+            icon: <StrokeStyleDashedIcon theme={appState.theme}/>,
           },
           {
             value: "dotted",
             text: t("labels.strokeStyle_dotted"),
-            icon: <StrokeStyleDottedIcon theme={appState.theme} />,
+            icon: <StrokeStyleDottedIcon theme={appState.theme}/>,
           },
         ]}
         value={getFormValue(
@@ -477,7 +628,7 @@ export const actionChangeStrokeStyle = register({
         onChange={(value) => updateData(value)}
       />
     </fieldset>
-  ),
+  },
 });
 
 export const actionChangeOpacity = register({
@@ -494,8 +645,18 @@ export const actionChangeOpacity = register({
       commitToHistory: true,
     };
   },
-  PanelComponent: ({ elements, appState, updateData }) => (
-    <label className="control-label">
+  PanelComponent: ({ elements, appState, updateData, data }) => {
+    if (data?.useCustomUi) {
+      return <Stack style={{minWidth: "10em"}} spacing={5}>
+        <Text fz="sm" weight={600}>{t("labels.opacity")}</Text>
+        <Slider onChange={(value) => updateData(value)}
+                value={getFormValue(elements, appState, (element) => element.opacity, appState.currentItemOpacity) ?? undefined}
+                min={0} max={100} step={10}
+        />
+      </Stack>
+    }
+
+    return <label className="control-label">
       {t("labels.opacity")}
       <input
         type="range"
@@ -527,7 +688,7 @@ export const actionChangeOpacity = register({
         }
       />
     </label>
-  ),
+  },
 });
 
 export const actionChangeFontSize = register({
@@ -536,8 +697,61 @@ export const actionChangeFontSize = register({
   perform: (elements, appState, value) => {
     return changeFontSize(elements, appState, () => value, value);
   },
-  PanelComponent: ({ elements, appState, updateData }) => (
-    <fieldset>
+  PanelComponent: ({ elements, appState, updateData, data }) => {
+    if (data?.useCustomUi) {
+      const value = getFormValue(
+        elements,
+        appState,
+        (element) => {
+          if (isTextElement(element)) {
+            return element.fontSize;
+          }
+          const boundTextElement = getBoundTextElement(element);
+          if (boundTextElement) {
+            return boundTextElement.fontSize;
+          }
+          return null;
+        },
+        appState.currentItemFontSize || DEFAULT_FONT_SIZE,
+      );
+
+      return <Stack spacing={3}>
+        <Text fz="sm" weight={600}>{t("labels.fontSize")}</Text>
+        <SegmentedControl
+          size="xs"
+          className={"custom-ui-control"}
+          value={value ? "" + value : undefined}
+          onChange={(value) => updateData(parseInt(value))}
+          data={[
+            {
+              label: <Center><ThemeIcon title={t("labels.small")} variant="default" color="dark" sx={{border: "none", backgroundColor: "transparent", maxHeight: "26px"}}>
+                <FontSizeSmallIcon theme={appState.theme}/>
+              </ThemeIcon></Center>,
+              value: '16',
+            },
+            {
+              label: <Center><ThemeIcon title={t("labels.medium")} variant="default" color="dark" sx={{border: "none", backgroundColor: "transparent", maxHeight: "26px"}}>
+                <FontSizeMediumIcon theme={appState.theme}/>
+              </ThemeIcon></Center>,
+              value: '20',
+            },
+            {
+              label: <Center><ThemeIcon title={t("labels.large")} variant="default" color="dark" sx={{border: "none", backgroundColor: "transparent", maxHeight: "26px"}}>
+                <FontSizeLargeIcon theme={appState.theme}/>
+              </ThemeIcon></Center>,
+              value: '28',
+            },
+            {
+              label: <Center><ThemeIcon title={t("labels.veryLarge")} variant="default" color="dark" sx={{border: "none", backgroundColor: "transparent", maxHeight: "26px"}}>
+                <FontSizeExtraLargeIcon theme={appState.theme}/>
+              </ThemeIcon></Center>,
+              value: '36',
+            },
+          ]}
+        /></Stack>
+    }
+
+    return <fieldset>
       <legend>{t("labels.fontSize")}</legend>
       <ButtonIconSelect
         group="font-size"
@@ -585,7 +799,7 @@ export const actionChangeFontSize = register({
         onChange={(value) => updateData(value)}
       />
     </fieldset>
-  ),
+  },
 });
 
 export const actionDecreaseFontSize = register({
@@ -659,7 +873,7 @@ export const actionChangeFontFamily = register({
       commitToHistory: true,
     };
   },
-  PanelComponent: ({ elements, appState, updateData }) => {
+  PanelComponent: ({ elements, appState, updateData, data }) => {
     const options: {
       value: FontFamilyValues;
       text: string;
@@ -681,6 +895,53 @@ export const actionChangeFontFamily = register({
         icon: <FontFamilyCodeIcon theme={appState.theme} />,
       },
     ];
+
+    if (data?.useCustomUi) {
+      const value = getFormValue(
+        elements,
+        appState,
+        (element) => {
+          if (isTextElement(element)) {
+            return element.fontFamily;
+          }
+          const boundTextElement = getBoundTextElement(element);
+          if (boundTextElement) {
+            return boundTextElement.fontFamily;
+          }
+          return null;
+        },
+        appState.currentItemFontFamily || DEFAULT_FONT_FAMILY,
+      );
+
+      return <Stack spacing={3}>
+        <Text fz="sm" weight={600}>{t("labels.fontFamily")}</Text>
+        <SegmentedControl
+          size="xs"
+          className={"custom-ui-control"}
+          value={value ? "" + value : undefined}
+          onChange={(value) => updateData(parseInt(value))}
+          data={[
+            {
+              label: <Center><ThemeIcon title={t("labels.handDrawn")} variant="default" color="dark" sx={{border: "none", backgroundColor: "transparent", maxHeight: "26px"}}>
+                <FontFamilyHandDrawnIcon theme={appState.theme}/>
+                </ThemeIcon></Center>,
+              value: "" + FONT_FAMILY.Virgil,
+            },
+            {
+              label: <Center><ThemeIcon title={t("labels.normal")} variant="default" color="dark" sx={{border: "none", backgroundColor: "transparent", maxHeight: "26px"}}>
+                <FontFamilyNormalIcon theme={appState.theme}/>
+              </ThemeIcon></Center>,
+              value: "" + FONT_FAMILY.Helvetica,
+            },
+            {
+              label: <Center><ThemeIcon title={t("labels.code")} variant="default" color="dark" sx={{border: "none", backgroundColor: "transparent", maxHeight: "26px"}}>
+                <FontFamilyCodeIcon theme={appState.theme}/>
+              </ThemeIcon></Center>,
+              value: "" + FONT_FAMILY.Cascadia,
+            }
+          ]}
+        /></Stack>
+    }
 
     return (
       <fieldset>
@@ -739,7 +1000,54 @@ export const actionChangeTextAlign = register({
       commitToHistory: true,
     };
   },
-  PanelComponent: ({ elements, appState, updateData }) => {
+  PanelComponent: ({ elements, appState, updateData, data }) => {
+    if (data?.useCustomUi) {
+      const value = getFormValue(
+        elements,
+        appState,
+        (element) => {
+          if (isTextElement(element)) {
+            return element.textAlign;
+          }
+          const boundTextElement = getBoundTextElement(element);
+          if (boundTextElement) {
+            return boundTextElement.textAlign;
+          }
+          return null;
+        },
+        appState.currentItemTextAlign,
+      );
+
+      return <Stack spacing={3}>
+        <Text fz="sm" weight={600}>{t("labels.textAlign")}</Text>
+        <SegmentedControl
+          size="xs"
+          className={"custom-ui-control"}
+          value={value ? "" + value : undefined}
+          onChange={(value) => updateData(value)}
+          data={[
+            {
+              label: <Center><ThemeIcon title={t("labels.left")} variant="default" color="dark" sx={{border: "none", backgroundColor: "transparent", maxHeight: "26px"}}>
+                <TextAlignLeftIcon theme={appState.theme}/>
+              </ThemeIcon></Center>,
+              value: "left",
+            },
+            {
+              label: <Center><ThemeIcon title={t("labels.center")} variant="default" color="dark" sx={{border: "none", backgroundColor: "transparent", maxHeight: "26px"}}>
+                <TextAlignCenterIcon theme={appState.theme}/>
+              </ThemeIcon></Center>,
+              value: "center",
+            },
+            {
+              label: <Center><ThemeIcon title={t("labels.right")} variant="default" color="dark" sx={{border: "none", backgroundColor: "transparent", maxHeight: "26px"}}>
+                <TextAlignRightIcon theme={appState.theme}/>
+              </ThemeIcon></Center>,
+              value: "right",
+            }
+          ]}
+        /></Stack>
+    }
+
     return (
       <fieldset>
         <legend>{t("labels.textAlign")}</legend>
@@ -812,7 +1120,50 @@ export const actionChangeVerticalAlign = register({
       commitToHistory: true,
     };
   },
-  PanelComponent: ({ elements, appState, updateData }) => {
+  PanelComponent: ({ elements, appState, updateData, data }) => {
+    if (data?.useCustomUi) {
+      const value = getFormValue(elements, appState, (element) => {
+        if (isTextElement(element) && element.containerId) {
+          return element.verticalAlign;
+        }
+        const boundTextElement = getBoundTextElement(element);
+        if (boundTextElement) {
+          return boundTextElement.verticalAlign;
+        }
+        return null;
+      });
+
+      return <Stack spacing={3}>
+        <Text fz="sm" weight={600}>{t("labels.textVerticalAlign")}</Text>
+        <SegmentedControl
+          size="xs"
+          className={"custom-ui-control"}
+          value={value ? "" + value : undefined}
+          onChange={(value) => updateData(value)}
+          data={[
+            {
+              label: <Center><ThemeIcon title={t("labels.alignTop")} variant="default" color="dark" sx={{border: "none", backgroundColor: "transparent", maxHeight: "26px"}}>
+                <TextAlignTopIcon theme={appState.theme}/>
+              </ThemeIcon></Center>,
+              value: VERTICAL_ALIGN.TOP,
+            },
+            {
+              label: <Center><ThemeIcon title={t("labels.centerVertically")} variant="default" color="dark" sx={{border: "none", backgroundColor: "transparent", maxHeight: "26px"}}>
+                <TextAlignMiddleIcon theme={appState.theme}/>
+              </ThemeIcon></Center>,
+              value: VERTICAL_ALIGN.MIDDLE,
+            },
+            {
+              label: <Center><ThemeIcon title={t("labels.alignBottom")} variant="default" color="dark" sx={{border: "none", backgroundColor: "transparent", maxHeight: "26px"}}>
+                <TextAlignBottomIcon theme={appState.theme}/>
+              </ThemeIcon></Center>,
+              value: VERTICAL_ALIGN.BOTTOM,
+            }
+          ]}
+        />
+      </Stack>
+    }
+
     return (
       <fieldset>
         <ButtonIconSelect<VerticalAlign | false>
@@ -883,8 +1234,35 @@ export const actionChangeSharpness = register({
       commitToHistory: true,
     };
   },
-  PanelComponent: ({ elements, appState, updateData }) => (
-    <fieldset>
+  PanelComponent: ({ elements, appState, updateData, data }) => {
+    if (data?.useCustomUi) {
+      return popOverSwitcher({
+        value: getFormValue(
+          elements,
+          appState,
+          (element) => element.strokeSharpness,
+          (canChangeSharpness(appState.activeTool.type) &&
+            (isLinearElementType(appState.activeTool.type)
+              ? appState.currentItemLinearStrokeSharpness
+              : appState.currentItemStrokeSharpness)) ||
+          null,
+        ),
+        onChange: (value: any) => updateData(value),
+        values: {
+          sharp: {
+            icon: <EdgeSharpIcon theme={appState.theme} />,
+            text: t("labels.sharp")
+          },
+          round: {
+            icon: <EdgeRoundIcon theme={appState.theme} />,
+            text: t("labels.round")
+          }
+        },
+        title: t("labels.edges")
+      });
+    }
+
+    return <fieldset>
       <legend>{t("labels.edges")}</legend>
       <ButtonIconSelect
         group="edges"
@@ -892,12 +1270,12 @@ export const actionChangeSharpness = register({
           {
             value: "sharp",
             text: t("labels.sharp"),
-            icon: <EdgeSharpIcon theme={appState.theme} />,
+            icon: <EdgeSharpIcon theme={appState.theme}/>,
           },
           {
             value: "round",
             text: t("labels.round"),
-            icon: <EdgeRoundIcon theme={appState.theme} />,
+            icon: <EdgeRoundIcon theme={appState.theme}/>,
           },
         ]}
         value={getFormValue(
@@ -908,12 +1286,12 @@ export const actionChangeSharpness = register({
             (isLinearElementType(appState.activeTool.type)
               ? appState.currentItemLinearStrokeSharpness
               : appState.currentItemStrokeSharpness)) ||
-            null,
+          null,
         )}
         onChange={(value) => updateData(value)}
       />
     </fieldset>
-  ),
+  },
 });
 
 export const actionChangeArrowhead = register({
@@ -953,8 +1331,54 @@ export const actionChangeArrowhead = register({
       commitToHistory: true,
     };
   },
-  PanelComponent: ({ elements, appState, updateData }) => {
+  PanelComponent: ({ elements, appState, updateData, data }) => {
     const isRTL = getLanguage().rtl;
+
+    if (data?.useCustomUi) {
+      const valueStart = getFormValue<Arrowhead | null>(
+        elements,
+        appState,
+        (element) =>
+          isLinearElement(element) && canHaveArrowheads(element.type)
+            ? element.startArrowhead
+            : appState.currentItemStartArrowhead,
+        appState.currentItemStartArrowhead,
+      );
+
+      const valueEnd = getFormValue<Arrowhead | null>(
+        elements,
+        appState,
+        (element) =>
+          isLinearElement(element) && canHaveArrowheads(element.type)
+            ? element.endArrowhead
+            : appState.currentItemEndArrowhead,
+        appState.currentItemEndArrowhead,
+      );
+
+      return <Popover position="right" withArrow shadow="md" closeOnClickOutside closeOnEscape>
+        <Popover.Target>
+          <ActionIcon size="xl" color="dark" p={10} title={t("labels.arrowheads")}><ArrowRight /></ActionIcon>
+        </Popover.Target>
+        <Popover.Dropdown p={5}>
+          <Group spacing={5}>
+            <Stack spacing={3}>
+              <ActionIcon size="xl" variant={valueStart === null ? "filled" : undefined} color={valueStart === null ? "indigo" : "dark"} p={10} title={t("labels.arrowhead_none")} onClick={() => updateData({ position: "start", type: null })}><ArrowheadNoneIcon theme={appState.theme} /></ActionIcon>
+              <ActionIcon size="xl" variant={valueStart === "arrow" ? "filled" : undefined} color={valueStart === "arrow" ? "indigo" : "dark"} p={10} title={t("labels.arrowhead_arrow")} onClick={() => updateData({ position: "start", type: "arrow" })}><ArrowheadArrowIcon theme={appState.theme} /></ActionIcon>
+              <ActionIcon size="xl" variant={valueStart === "bar" ? "filled" : undefined} color={valueStart === "bar" ? "indigo" : "dark"} p={10} title={t("labels.arrowhead_bar")} onClick={() => updateData({ position: "start", type: "bar" })}><ArrowheadBarIcon theme={appState.theme} /></ActionIcon>
+              <ActionIcon size="xl" variant={valueStart === "dot" ? "filled" : undefined} color={valueStart === "dot" ? "indigo" : "dark"} p={10} title={t("labels.arrowhead_dot")} onClick={() => updateData({ position: "start", type: "dot" })}><ArrowheadDotIcon theme={appState.theme} /></ActionIcon>
+              <ActionIcon size="xl" variant={valueStart === "triangle" ? "filled" : undefined} color={valueStart === "triangle" ? "indigo" : "dark"} p={10} title={t("labels.arrowhead_triangle")} onClick={() => updateData({ position: "start", type: "triangle" })}><ArrowheadTriangleIcon theme={appState.theme} /></ActionIcon>
+            </Stack>
+            <Stack spacing={3}>
+              <ActionIcon size="xl" variant={valueEnd === null ? "filled" : undefined} color={valueEnd === null ? "indigo" : "dark"} p={10} title={t("labels.arrowhead_none")} onClick={() => updateData({ position: "end", type: null })}><ArrowheadNoneIcon theme={appState.theme} /></ActionIcon>
+              <ActionIcon size="xl" variant={valueEnd === "arrow" ? "filled" : undefined} color={valueEnd === "arrow" ? "indigo" : "dark"} p={10} title={t("labels.arrowhead_arrow")} onClick={() => updateData({ position: "end", type: "arrow" })}><ArrowheadArrowIcon theme={appState.theme} /></ActionIcon>
+              <ActionIcon size="xl" variant={valueEnd === "bar" ? "filled" : undefined} color={valueEnd === "bar" ? "indigo" : "dark"} p={10} title={t("labels.arrowhead_bar")} onClick={() => updateData({ position: "end", type: "bar" })}><ArrowheadBarIcon theme={appState.theme} /></ActionIcon>
+              <ActionIcon size="xl" variant={valueEnd === "dot" ? "filled" : undefined} color={valueEnd === "dot" ? "indigo" : "dark"} p={10} title={t("labels.arrowhead_dot")} onClick={() => updateData({ position: "end", type: "dot" })}><ArrowheadDotIcon theme={appState.theme} /></ActionIcon>
+              <ActionIcon size="xl" variant={valueEnd === "triangle" ? "filled" : undefined} color={valueEnd === "triangle" ? "indigo" : "dark"} p={10} title={t("labels.arrowhead_triangle")} onClick={() => updateData({ position: "end", type: "triangle" })}><ArrowheadTriangleIcon theme={appState.theme} /></ActionIcon>
+            </Stack>
+          </Group>
+        </Popover.Dropdown>
+      </Popover>
+    }
 
     return (
       <fieldset>

@@ -43,7 +43,7 @@ export const createIcon = (
       focusable="false"
       role="img"
       viewBox={`0 0 ${width} ${height}`}
-      className={clsx({ "rtl-mirror": mirror })}
+      className={clsx("excalidraw-icon", { "rtl-mirror": mirror })}
       style={style}
     >
       {typeof d === "string" ? <path fill="currentColor" d={d} /> : d}

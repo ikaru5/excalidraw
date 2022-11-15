@@ -1,24 +1,27 @@
-import { register } from "./register";
-import { getNonDeletedElements } from "../element";
+import {register} from "./register";
+import {getNonDeletedElements} from "../element";
 import {
   getCommonAttributeOfSelectedElements,
   getSelectedElements,
   isSomeElementSelected,
 } from "../scene";
-import { t } from "../i18n";
-import { LatexField } from "../components/LatexField";
+import {t} from "../i18n";
+import {LatexField} from "../components/LatexField";
 import {
   ExcalidrawElement,
   ExcalidrawImageElement,
   NonDeletedExcalidrawElement,
 } from "../element/types";
-import { AppState } from "../types";
-import { mutateElement } from "../element/mutateElement";
+import {AppState} from "../types";
+import {mutateElement} from "../element/mutateElement";
 import App from "../components/App";
+import {Stack, Text} from "@mantine/core";
+import {getShortcutKey} from "../utils";
+import {GroupIcon} from "../components/icons";
 
 export const actionLatexEdit = register({
   name: "latexEdit",
-  trackEvent: { category: "element" },
+  trackEvent: {category: "element"},
   perform: async (elements, appState, value, app: any) => {
     const editedElement = getCurrentSelectedElement(
       elements,
@@ -57,18 +60,32 @@ export const actionLatexEdit = register({
     };
   },
   contextItemLabel: "labels.im2latex",
-  PanelComponent: ({ elements, appState, updateData }) => (
-    <>
+  PanelComponent: ({elements, appState, updateData, data}) => {
+    if (data?.useCustomUi) {
+      return <Stack spacing={10}>
+        <Text aria-hidden="true" weight={700}>{t("labels.latex")}</Text>
+        <LatexField
+          label={t("labels.latex")}
+          value={getFormValue(elements, appState, (element) => element.latex, "")}
+          onChange={(value) => updateData({latex: value})}
+          elements={elements}
+          appState={appState}
+          useCustomUi={true}
+        />
+      </Stack>
+    }
+
+    return <>
       <h3 aria-hidden="true">{t("labels.latex")}</h3>
       <LatexField
         label={t("labels.latex")}
         value={getFormValue(elements, appState, (element) => element.latex, "")}
-        onChange={(value) => updateData({ latex: value })}
+        onChange={(value) => updateData({latex: value})}
         elements={elements}
         appState={appState}
       />
     </>
-  ),
+  },
 });
 
 const getCurrentSelectedElement = (
@@ -92,10 +109,10 @@ const getFormValue = (
     (editingElement && getAttribute(editingElement)) ??
     (isSomeElementSelected(nonDeletedElements, appState)
       ? getCommonAttributeOfSelectedElements(
-          nonDeletedElements,
-          appState,
-          getAttribute,
-        )
+        nonDeletedElements,
+        appState,
+        getAttribute,
+      )
       : null) ??
     defaultValue
   );
