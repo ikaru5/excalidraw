@@ -414,6 +414,7 @@ export type ExcalidrawImperativeAPI = {
   history: {
     clear: InstanceType<typeof App>["resetHistory"];
   };
+  getPreviewScreenshot: InstanceType<typeof App>["getPreviewScreenshot"];
   scrollToContent: InstanceType<typeof App>["scrollToContent"];
   getSceneElements: InstanceType<typeof App>["getSceneElements"];
   getAppState: () => InstanceType<typeof App>["state"];

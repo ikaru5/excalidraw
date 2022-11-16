@@ -227,6 +227,7 @@ import { Stats } from "./Stats";
 import { Toast } from "./Toast";
 import { actionToggleViewMode } from "../actions/actionToggleViewMode";
 import {
+  canvasToBlob,
   dataURLToFile,
   generateIdFromFile,
   getDataURL,
@@ -258,6 +259,7 @@ import {
   isLocalLink,
 } from "../element/Hyperlink";
 import LayerUIAlternative from "./LayerUIAlternative";
+import {exportToCanvas} from "../scene/export";
 
 declare global {
   interface Window {
@@ -376,6 +378,7 @@ class App extends React.Component<AppProps, AppState> {
         updateScene: this.updateScene,
         addFiles: this.addFiles,
         resetScene: this.resetScene,
+        getPreviewScreenshot: this.getPreviewScreenshot,
         getSceneElementsIncludingDeleted: this.getSceneElementsIncludingDeleted,
         history: {
           clear: this.resetHistory,
@@ -1684,6 +1687,17 @@ class App extends React.Component<AppProps, AppState> {
       this.addNewImagesToImageCache();
     },
   );
+
+  public getPreviewScreenshot = async (): Promise<Blob> => {
+    return exportToCanvas(this.scene.getElements(), this.state, this.files, {
+      viewBackgroundColor: this.state.viewBackgroundColor,
+      exportBackground: true
+    }).then((canvas) => {
+      return canvasToBlob(canvas);
+    }).then((blob) => {
+      return blob;
+    });
+  }
 
   public updateScene = withBatchedUpdates(
     <K extends keyof AppState>(sceneData: {

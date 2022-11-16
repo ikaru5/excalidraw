@@ -63,6 +63,8 @@ export const exportToCanvas = async (
     remotePointerUserStates: {},
     theme: appState.exportWithDarkMode ? "dark" : "light",
     imageCache,
+    // @ts-ignore
+    latexImageCache: appState.latexImageCache,
     renderScrollbars: false,
     renderSelection: false,
     renderGrid: false,
