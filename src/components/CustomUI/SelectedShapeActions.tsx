@@ -10,8 +10,9 @@ import {hasStrokeColor} from "../../scene/comparisons"
 import {t} from "../../i18n"
 import React from "react"
 import {ActionIcon, Divider, Group, Paper, Popover, Stack} from "@mantine/core";
-import {BoxAlignRight, BoxMultiple, CircleDotted, Droplet, Line, Palette, TextSize} from "tabler-icons-react";
+import {BoxAlignRight, BoxMultiple, Brush, CircleDotted, Droplet, Line, Palette, TextSize} from "tabler-icons-react";
 import colors from "../../colors";
+import BucketDroplet from "./bucket-droplet";
 
 const SelectedShapeActions = ({
                                 appState,
@@ -92,7 +93,7 @@ const SelectedShapeActions = ({
 
     return <Popover position="right" offset={13} closeOnClickOutside withArrow shadow="xl">
       <Popover.Target>
-        <ActionIcon color="dark" title={t("labels.stroke")} size="xl"><Line/></ActionIcon>
+        <ActionIcon color="dark" title={t("labels.stroke")} size="xl"><Brush/></ActionIcon>
       </Popover.Target>
       <Popover.Dropdown p="xs" style={{minWidth: "200px"}}>
         <Stack spacing={5}>
@@ -119,7 +120,7 @@ const SelectedShapeActions = ({
 
     return <Popover position="right" offset={13} closeOnClickOutside withArrow shadow="xl">
       <Popover.Target>
-        <ActionIcon title={t("labels.background")} color="dark" size="xl"><Droplet/></ActionIcon>
+        <ActionIcon title={t("labels.background")} color="dark" size="xl"><BucketDroplet/></ActionIcon>
       </Popover.Target>
       <Popover.Dropdown p="xs" style={{minWidth: "200px"}}>
         <Stack spacing="xs">
@@ -168,6 +169,8 @@ const SelectedShapeActions = ({
   }
 
   const renderLayers = () => {
+    if (!(!isEditing && targetElements.length > 0)) return null;
+
     return <Popover position="right" offset={13} closeOnClickOutside withArrow shadow="xl">
       <Popover.Target>
         <ActionIcon title={t("labels.layers")} size="xl" color="dark"><BoxMultiple/></ActionIcon>

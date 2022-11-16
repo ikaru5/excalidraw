@@ -58,6 +58,8 @@ const TopRight = ({appState, actionManager, zenModeEnabled, showExitZenModeBtn, 
             </Menu.Dropdown>
           </Menu>
         </Group>
+      </Stack>
+      <Stack spacing={5} style={{position: "absolute", right: 10, top: "50vh", transform: "translateY(-50%)", maxHeight: "80vh", flexWrap: "wrap-reverse"}}>
         {appState.collaborators.size > 0 &&
           Array.from(appState.collaborators)
             // Collaborator is either not initialized or is actually the current user.
