@@ -9,7 +9,7 @@ import { getDefaultAppState } from "../appState";
 import { serializeAsJSON } from "../data/json";
 import {
   getInitializedImageElements,
-  updateImageCache,
+  updateImageCache, updateLatexImageCache,
 } from "../element/image";
 
 export const SVG_EXPORT_TAG = `<!-- svg-source:excalidraw -->`;
@@ -45,10 +45,15 @@ export const exportToCanvas = async (
 
   const { imageCache } = await updateImageCache({
     imageCache: new Map(),
-    fileIds: getInitializedImageElements(elements).map(
+    fileIds: getInitializedImageElements(elements).filter(element => element.fileId).map(
       (element) => element.fileId,
     ),
     files,
+  });
+
+  const latexImageCache = await updateLatexImageCache({
+    latexImageCache: new Map(),
+    elements: getInitializedImageElements(elements).filter(element => !element.fileId),
   });
 
   renderScene(elements, appState, null, scale, rough.canvas(canvas), canvas, {
@@ -63,8 +68,7 @@ export const exportToCanvas = async (
     remotePointerUserStates: {},
     theme: appState.exportWithDarkMode ? "dark" : "light",
     imageCache,
-    // @ts-ignore
-    latexImageCache: appState.latexImageCache,
+    latexImageCache: latexImageCache,
     renderScrollbars: false,
     renderSelection: false,
     renderGrid: false,

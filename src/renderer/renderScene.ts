@@ -268,6 +268,7 @@ export const renderScene = (
         renderLinkIcon(element, context, appState);
       }
     } catch (error: any) {
+      console.error(element);
       console.error(error);
     }
   });

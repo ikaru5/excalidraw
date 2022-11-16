@@ -11,6 +11,7 @@ import {
   FileId,
   InitializedExcalidrawImageElement,
 } from "./types";
+import {getDataURL, SVGStringToFile} from "../data/blob";
 
 export const loadHTMLImageElement = (dataURL: DataURL) => {
   return new Promise<HTMLImageElement>((resolve, reject) => {
@@ -81,6 +82,56 @@ export const updateImageCache = async ({
     erroredFiles,
   };
 };
+
+export const updateLatexImageCache = async({elements, latexImageCache}: { elements: readonly InitializedExcalidrawImageElement[]; latexImageCache: AppClassProperties["latexImageCache"]; }
+) => {
+  await Promise.all(
+    elements.reduce((promises, element) => {
+      const latex = element.latex;
+      if ("string" === typeof latex && !latexImageCache.get(latex)?.image) {
+        return promises.concat(
+          (async () => {
+            const latexSVG = window.MathJax.tex2svg(latex).childNodes[0].outerHTML;
+            const file = new File([latexSVG], "tmpfile.svg", {
+              type: MIME_TYPES.svg,
+              lastModified: new Date().getTime(),
+            });
+            let newFile;
+            try {
+              newFile = SVGStringToFile(
+                await normalizeSVG(await file.text()),
+                file.name,
+              );
+            } catch (error: any) {
+              console.warn(error);
+              throw new Error(t("errors.latexSvgImageInsertError"));
+            }
+
+            const dataURL = await getDataURL(newFile);
+
+            const imagePromise = loadHTMLImageElement(dataURL);
+
+            const data = {
+              image: imagePromise,
+              mimeType: MIME_TYPES.svg,
+            } as const;
+
+            // store the promise immediately to indicate there's an in-progress
+            // initialization
+            latexImageCache.set(latex, data);
+
+            const image = await imagePromise;
+
+            latexImageCache.set(latex, {...data, image});
+          })(),
+        );
+      }
+      return promises;
+    }, [] as Promise<any>[])
+  );
+
+  return latexImageCache;
+}
 
 export const getInitializedImageElements = (
   elements: readonly ExcalidrawElement[],
